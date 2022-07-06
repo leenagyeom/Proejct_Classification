@@ -5,10 +5,24 @@ import shutil
 
 from sklearn.model_selection import train_test_split
 
-CATEGORY = {"apple_fuji":0, "apple_yanggwang":1, "cabbage_green":2, "cabbage_red":3, "chinese-cabbage":4,
-            "garlic_uiseong":5, "mandarine_hallabong":6, "mandarine_onjumilgam":7, "onion_red":8, "onion_white":9,
-            "pear_chuhwang":10, "pear_singo":11, "persimmon_bansi":12, "persimmon_booyu":13, "persimmon_daebong":14,
-            "potato_seolbong":15, "potato_sumi":16, "radish_winter-radish":17}
+CATEGORY = {'apple_fuji_l': 0, 'apple_fuji_m': 1, 'apple_fuji_s': 2,
+            'apple_yanggwang_l': 3, 'apple_yanggwang_m': 4, 'apple_yanggwang_s': 5,
+            'cabbage_green_l': 6, 'cabbage_green_m': 7, 'cabbage_green_s': 8,
+            'cabbage_red_l': 9, 'cabbage_red_m': 10, 'cabbage_red_s': 11,
+            'chinese-cabbage_l': 12, 'chinese-cabbage_m': 13, 'chinese-cabbage_s': 14,
+            'garlic_uiseong_l': 15, 'garlic_uiseong_m': 16, 'garlic_uiseong_s': 17,
+            'mandarine_hallabong_l': 18, 'mandarine_hallabong_m': 19, 'mandarine_hallabong_s': 20,
+            'mandarine_onjumilgam_l': 21, 'mandarine_onjumilgam_m': 22, 'mandarine_onjumilgam_s': 23,
+            'onion_red_l': 24, 'onion_red_m': 25, 'onion_red_s': 26,
+            'onion_white_l': 27, 'onion_white_m': 28, 'onion_white_s': 29,
+            'pear_chuhwang_l': 30, 'pear_chuhwang_m': 31, 'pear_chuhwang_s': 32,
+            'pear_singo_l': 33, 'pear_singo_m': 34, 'pear_singo_s': 35,
+            'persimmon_bansi_l': 36, 'persimmon_bansi_m': 37, 'persimmon_bansi_s': 38,
+            'persimmon_booyu_l': 39, 'persimmon_booyu_m': 40, 'persimmon_booyu_s': 41,
+            'persimmon_daebong_l': 42, 'persimmon_daebong_m': 43, 'persimmon_daebong_s': 44,
+            'potato_seolbong_l': 45, 'potato_seolbong_m': 46, 'potato_seolbong_s': 47,
+            'potato_sumi_l': 48, 'potato_sumi_m': 49, 'potato_sumi_s': 50,
+            'radish_winter-radish_l': 51, 'radish_winter-radish_m': 52, 'radish_winter-radish_s': 53}
 
 def split(path):
     img_path = sorted(glob.glob(os.path.join(path, "raw", "*.png")))
