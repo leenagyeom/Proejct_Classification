@@ -57,3 +57,8 @@ def split(path):
             jsn_file_name = y.split('\\')[-1]
             cv2.imwrite(f"./dataset/test/{cate}/{img_file_name}", open_img)
             shutil.copy(y, f"./dataset/test/{cate}/{jsn_file_name}")
+
+
+if __name__ == '__main__':
+    origin_path = "./QC_sample/"
+    split(origin_path)
