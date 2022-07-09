@@ -14,28 +14,32 @@ lb_list = []
 wi_list = []
 he_list = []
 we_list = []
+on_list = []
 
 def take_label(json_file):
     for file in json_file:
         with open(file, "r", encoding='utf-8') as f:
             data = json.load(f)
 
-            name = file.split('\\')[-2]
-            nm_list.append(name)
-            x_data = data['repo']
-            lb_list.append(x_data)
+            file_name = file.split('\\')[-1]
+            bar_point = file_name.rfind('-')
+            labels = file_name[:bar_point]
 
+            x_data = data['repo']
             width = float(data['width'])
-            wi_list.append(width)
             height = float(data['height'])
-            he_list.append(height)
             weight = float(data['weight'])
-            we_list.append(weight)
-            # print(width, height, weight)
+
+            if labels not in on_list:
+                on_list.append(labels)
+                lb_list.append(x_data)
+                wi_list.append(width)
+                he_list.append(height)
+                we_list.append(weight)
 
 
     label_df = pd.DataFrame({
-        'file' : nm_list,
+        'file' : on_list,
         'x' : lb_list,
         'width' : wi_list,
         'height' : he_list,
