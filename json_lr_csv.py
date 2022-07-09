@@ -23,15 +23,18 @@ def take_label(json_file):
 
             file_name = file.split('\\')[-1]
             bar_point = file_name.rfind('-')
-            labels = file_name[:bar_point]
+            qc = file_name[:bar_point]
+
+            label = file.split('\\')[-2]
 
             x_data = data['repo']
             width = float(data['width'])
             height = float(data['height'])
             weight = float(data['weight'])
 
-            if labels not in on_list:
-                on_list.append(labels)
+            if qc not in on_list:
+                on_list.append(qc)
+                nm_list.append(label)
                 lb_list.append(x_data)
                 wi_list.append(width)
                 he_list.append(height)
@@ -39,7 +42,8 @@ def take_label(json_file):
 
 
     label_df = pd.DataFrame({
-        'file' : on_list,
+        'add_QC' : on_list,
+        'label' : nm_list,
         'x' : lb_list,
         'width' : wi_list,
         'height' : he_list,
