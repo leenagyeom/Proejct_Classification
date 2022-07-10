@@ -25,7 +25,8 @@ def take_label(json_file):
             bar_point = file_name.rfind('-')
             qc = file_name[:bar_point]
 
-            label = file.split('\\')[-2]
+            label = file.split('\\')[-2].split('_')
+            label = label[0]+'_'+label[-1]
 
             x_data = data['repo']
             width = float(data['width'])
