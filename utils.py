@@ -9,6 +9,7 @@ data = []
 def train(num_epoch, model, train_loader, test_loader, criterion, optimizer,
           save_dir, val_every, device):
 
+    global valid_loss, valid_acc
     print("String... train !!! ")
     best_loss = 9999
     for epoch in range(num_epoch):
@@ -29,7 +30,6 @@ def train(num_epoch, model, train_loader, test_loader, criterion, optimizer,
                 1, len(train_loader), loss.item(), acc.item() * 100
             ))
 
-            valid_acc = 0
             if (epoch + 1) % val_every == 0:
                 valid_acc, valid_loss = validation(epoch + 1, model, test_loader, criterion, device)
                 if valid_loss < best_loss:
@@ -38,7 +38,7 @@ def train(num_epoch, model, train_loader, test_loader, criterion, optimizer,
                     best_loss = valid_loss
                     save_model(model, save_dir)
 
-            data.append([acc.item() * 100, loss.item(), valid_acc, best_loss])
+            data.append([acc.item() * 100, loss.item(), valid_acc, valid_loss])
             print()
 
     pd_data = pd.DataFrame(data, columns=['train_accu', 'train_loss', 'test_accu', 'test_loss'])
