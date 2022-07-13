@@ -33,8 +33,12 @@ def initialize_model(model_name, num_classes, use_pretrained=True):
 
     elif model_name == "resnext50_32x4d":
         model_ft = models.resnext50_32x4d(pretrained=use_pretrained)
-        num_ftrs = model_ft.fc.in_features
-        model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        model_ft.fc = nn.Linear(1280, num_classes)
+        input_size = 224
+
+    elif model_name == "ghostnet":
+        model_ft = torch.hub.load('huawei-noah/ghostnet', 'ghostnet_1x', pretrained=use_pretrained)
+        model_ft.fc = nn.Linear(1280, num_classes)
         input_size = 224
 
     elif model_name == "mobilenet":
@@ -103,3 +107,6 @@ def initialize_model(model_name, num_classes, use_pretrained=True):
         exit()
 
     return model_ft, input_size
+
+
+
