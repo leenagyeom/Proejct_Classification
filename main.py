@@ -22,7 +22,7 @@ def set_seed(seed = 7777):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cuda"
 
 
 train_transform = transforms.Compose([
@@ -30,34 +30,34 @@ train_transform = transforms.Compose([
     transforms.RandomHorizontalFlip(p=0.2),
     transforms.RandomVerticalFlip(p=0.2),
     transforms.ToTensor(),
-    transforms.Normalize([0.5, 0.5, 0.5], [0.2, 0.2, 0.2])
 ])
 
 test_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
-    transforms.Normalize([0.5, 0.5, 0.5], [0.2, 0.2, 0.2])
 ])
 
 
-train_data = dataset.QCDataset("./Training", transform=train_transform)
-test_data = dataset.QCDataset("./Validation", transform=test_transform)
+# train_data = dataset.QCDataset("./Training", transform=train_transform)
+# test_data = dataset.QCDataset("./Validation", transform=test_transform)
+train_data = dataset.QCDataset("./dataset/train", transform=train_transform)
+test_data = dataset.QCDataset("./dataset/test", transform=test_transform)
 
 
 train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
 test_loader = DataLoader(test_data, batch_size=64, shuffle=False)
 
-modelname = "ghostnet"
+modelname = "alexnet"
 model, size = models.initialize_model(modelname, 54, use_pretrained=True)
 model = model.to(device)
 
 
 criterion = nn.CrossEntropyLoss().to(device)
-optimizer = optim.SGD(model.parameters(), lr=0.025, momentum=0.9)
+optimizer = optim.SGD(model.parameters(), lr=0.0025, momentum=0.9)
 lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)
 
-epochs = 10
-val_every = 10
+epochs = 1
+val_every = 1
 save_weights_dir = "./weight"
 os.makedirs(save_weights_dir, exist_ok=True)
 

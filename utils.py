@@ -3,13 +3,12 @@ import torch
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-import tqdm
+from tqdm import tqdm
 
 data = []
 def train(num_epoch, model, train_loader, test_loader, criterion, optimizer,
           save_dir, val_every, device):
 
-    global valid_loss, valid_acc
     print("String... train !!! ")
     best_loss = 9999
     for epoch in range(num_epoch):
@@ -30,21 +29,25 @@ def train(num_epoch, model, train_loader, test_loader, criterion, optimizer,
                 1, len(train_loader), loss.item(), acc.item() * 100
             ))
 
+            # global avg_acc, avg_loss
+            # avg_acc = 0
+            # avg_loss = 0
+
             if (epoch + 1) % val_every == 0:
-                valid_acc, valid_loss = validation(epoch + 1, model, test_loader, criterion, device)
-                if valid_loss < best_loss:
+                avg_acc, avg_loss = validation(
+                    epoch + 1, model, test_loader, criterion, device)
+                if avg_loss < best_loss:
                     print("Best prediction at epoch : {} ".format(epoch + 1))
                     print("Save model in", save_dir)
-                    best_loss = valid_loss
+                    best_loss = avg_loss
                     save_model(model, save_dir)
-
-            data.append([acc.item() * 100, loss.item(), valid_acc, valid_loss])
+            data.append([acc.item() * 100, loss.item(), avg_acc, avg_loss])
             print()
 
-    pd_data = pd.DataFrame(data, columns=['train_accu', 'train_loss', 'test_accu', 'test_loss'])
+        pd_data = pd.DataFrame(data, columns=['train_accu', 'train_loss', 'test_accu', 'test_loss'])
 
-    save_model(model, save_dir, file_name="last.pt")
-    return model, pd_data
+        save_model(model, save_dir, file_name="last.pt")
+        return model, pd_data
 
 
 def validation(epoch, model, test_loader, criterion, device):
@@ -71,7 +74,7 @@ def validation(epoch, model, test_loader, criterion, device):
         ))
 
     model.train()
-    return correct / total * 100, avg_loss
+    return correct / total * 100, avg_loss.item()
 
 
 def save_model(model, save_dir, file_name="best.pt"):

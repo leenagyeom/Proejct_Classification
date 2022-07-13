@@ -25,7 +25,7 @@ CATEGORY = {'apple_fuji_l': 0, 'apple_fuji_m': 1, 'apple_fuji_s': 2,
 
 class QCDataset(Dataset):
     def __init__(self, data_path, transform=None):
-        self.path = sorted(glob.glob(os.path.join(data_path, "*", "*", "*.png")))
+        self.path = sorted(glob.glob(os.path.join(data_path, "*", "*.png")))
         self.transform = transform
 
     def __getitem__(self, index):
@@ -38,7 +38,6 @@ class QCDataset(Dataset):
 
         # label_temp = onion_red_S_75-19_4DI45.png
         label = image.lower().split('\\')[-1]
-
 
         if 'chinese-cabbage' in label:
             # chinese-cabbage_l
