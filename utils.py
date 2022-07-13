@@ -1,13 +1,19 @@
+import pandas as pd
 import torch
+import matplotlib.pyplot as plt
+import os
+import numpy as np
+import tqdm
 
+data = []
 def train(num_epoch, model, train_loader, test_loader, criterion, optimizer,
           save_dir, val_every, device):
 
     print("String... train !!! ")
     best_loss = 9999
     for epoch in range(num_epoch):
-        for i, (imgs, labels) in enumerate(train_loader):
-            imgs, labels  = imgs.to(device), labels.to(device)
+        for i, (imgs, labels, _) in enumerate(train_loader):
+            imgs, labels = imgs.to(device), labels.to(device)
             output = model(imgs)
 
             loss = criterion(output, labels)
@@ -23,16 +29,22 @@ def train(num_epoch, model, train_loader, test_loader, criterion, optimizer,
                 1, len(train_loader), loss.item(), acc.item() * 100
             ))
 
+            valid_acc = 0
             if (epoch + 1) % val_every == 0:
-                avg_loss = validation(
-                    epoch + 1, model, test_loader, criterion, device)
-                if avg_loss < best_loss:
+                valid_acc, valid_loss = validation(epoch + 1, model, test_loader, criterion, device)
+                if valid_loss < best_loss:
                     print("Best prediction at epoch : {} ".format(epoch + 1))
                     print("Save model in", save_dir)
-                    best_loss = avg_loss
+                    best_loss = valid_loss
                     save_model(model, save_dir)
 
+            data.append([acc.item() * 100, loss.item(), valid_acc, best_loss])
+            print()
+
+    pd_data = pd.DataFrame(data, columns=['train_accu', 'train_loss', 'test_accu', 'test_loss'])
+
     save_model(model, save_dir, file_name="last.pt")
+    return model, pd_data
 
 
 def validation(epoch, model, test_loader, criterion, device):
@@ -43,7 +55,7 @@ def validation(epoch, model, test_loader, criterion, device):
         correct = 0
         total_loss = 0
         cnt = 0
-        for i, (imgs, labels) in enumerate(test_loader):
+        for i, (imgs, labels, _) in enumerate(test_loader):
             imgs, labels = imgs.to(device), labels.to(device)
             outputs = model(imgs)
             loss = criterion(outputs, labels)
@@ -59,7 +71,7 @@ def validation(epoch, model, test_loader, criterion, device):
         ))
 
     model.train()
-    return avg_loss
+    return correct / total * 100, avg_loss
 
 
 def save_model(model, save_dir, file_name="best.pt"):
@@ -74,7 +86,7 @@ def eval(model, test_loader, device):
     correct = 0
 
     with torch.no_grad():
-        for i, (imgs, labels) in tqdm(enumerate(test_loader)):
+        for i, (imgs, labels, _) in tqdm(enumerate(test_loader)):
             imgs, labels = imgs.to(device), labels.to(device)
 
             outputs = model(imgs)
@@ -86,3 +98,46 @@ def eval(model, test_loader, device):
         print("Test acc for image : {} ACC : {:.2f}".format(
             total, correct / total * 100))
         print("End test.. ")
+
+def loss_acc_visualize(history, modelname, path="./results"):
+    os.makedirs("./results", exist_ok=True)
+
+    plt.figure(figsize=(20, 10))
+
+    plt.suptitle(f"SGD; 0.01")
+
+    plt.subplot(121)
+    plt.plot(history['train_loss'], label='train_loss')
+    plt.plot(history['test_loss'], label='test_loss')
+    plt.legend()
+    plt.title('Loss Curves')
+
+    plt.subplot(122)
+    plt.plot(history['train_accu'], label='train_accu')
+    plt.plot(history['test_accu'], label='test_accu')
+    plt.legend()
+    plt.title('Accuracy Curves')
+
+    plt.savefig(os.path.join(str(path),f'loss_acc_{modelname}.png'))
+
+
+def visual_predict(model, modelname, data, path="./results"):
+    os.makedirs("./results", exist_ok=True)
+
+    c = np.random.randint(0, len(data))
+    img, labels, category = data[c]
+
+    with torch.no_grad():
+        model.eval()
+        # Model outputs log probabilities
+        out = model(img.view(1, 3, 224, 224).cuda())
+        out = torch.exp(out)
+
+    plt.figure(figsize=(10, 5))
+    plt.subplot(121)
+    plt.imshow(img.numpy().transpose((1, 2, 0)))
+    plt.title(labels)
+    plt.subplot(122)
+    plt.barh(category, out.cpu().numpy()[0])
+
+    plt.savefig(os.path.join(str(path),f'predict_{modelname}.png'))

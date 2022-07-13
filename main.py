@@ -7,7 +7,6 @@ import torchvision.transforms as transforms
 import os
 import numpy as np
 import random
-from tqdm import tqdm
 
 import dataset, models, utils
 
@@ -41,30 +40,33 @@ test_transform = transforms.Compose([
 ])
 
 
-data_path = "./dataset/"
-train_data = dataset.QCDataset(data_path, "train", transform=train_transform)
-test_data = dataset.QCDataset(data_path, "test", transform=test_transform)
+train_data = dataset.QCDataset("./Training", transform=train_transform)
+test_data = dataset.QCDataset("./Validation", transform=test_transform)
+
 
 train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
 test_loader = DataLoader(test_data, batch_size=64, shuffle=False)
 
-model, size = models.initialize_model("resnet18", 54, use_pretrained=True)
+modelname = "ghostnet"
+model, size = models.initialize_model(modelname, 54, use_pretrained=True)
 model = model.to(device)
 
 
 criterion = nn.CrossEntropyLoss().to(device)
-optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+optimizer = optim.SGD(model.parameters(), lr=0.025, momentum=0.9)
 lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)
 
 epochs = 10
-val_every = 1
+val_every = 10
 save_weights_dir = "./weight"
 os.makedirs(save_weights_dir, exist_ok=True)
 
 
 """model load => model test"""
-# model.load_state_dict(torch.load("./weight/best.pt"))
+# model.load_state_dict(torch.load("./weight/best.pt", map_location='cpu'))
 
 if __name__ == "__main__":
-    utils.train(epochs, model, train_loader, test_loader, criterion, optimizer, save_weights_dir, val_every, device)
+    model, data = utils.train(epochs, model, train_loader, test_loader, criterion, optimizer, save_weights_dir, val_every, device)
+    utils.loss_acc_visualize(data, modelname)
+    utils.visual_predict(model, modelname, test_data)
     # utils.eval(model, test_loader, device)
