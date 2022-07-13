@@ -24,9 +24,8 @@ CATEGORY = {'apple_fuji_l': 0, 'apple_fuji_m': 1, 'apple_fuji_s': 2,
 
 
 class QCDataset(Dataset):
-    def __init__(self, data_path, mode, transform=None):
-        self.path = sorted(glob.glob(os.path.join(data_path, mode, "*", "*.png")))
-        self.mode = mode
+    def __init__(self, data_path, transform=None):
+        self.path = sorted(glob.glob(os.path.join(data_path, "*", "*", "*.png")))
         self.transform = transform
 
     def __getitem__(self, index):
@@ -37,14 +36,21 @@ class QCDataset(Dataset):
         if self.transform is not None :
             img = self.transform(img)
 
-        # label = exploration.take_label(json).split('/')[0]
-        label_temp = image.split('\\')[-1]
+        # label_temp = onion_red_S_75-19_4DI45.png
+        label = image.lower().split('\\')[-1]
 
-        for cate in CATEGORY:
-            if cate in label_temp:
-                label = CATEGORY[cate]
 
-        return img, label
+        if 'chinese-cabbage' in label:
+            # chinese-cabbage_l
+            label = label.split('_')
+            label = label[0] + '_' + label[1]
+        else :
+            label = label.split('_')
+            label = label[0] + '_' + label[1] + '_' + label[2]
+
+        labeling = CATEGORY[label]
+
+        return img, labeling, label
 
     def __len__(self):
         return len(self.path)
